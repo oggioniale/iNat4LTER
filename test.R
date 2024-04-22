@@ -6,11 +6,15 @@ LTER_Italy_Sites_DEIMS_iNat <- readxl::read_excel("LTER_Italy_Sites_DEIMS_iNat.x
 nrow_iNatProj <- nrow(LTER_Italy_Sites_DEIMS_iNat)
 
 # download boundaries for LTER-Italy site where are the iNaturalist observations ----
-LTERsite_boundaries <- lapply(1:2, function(n){
+LTERsite_boundaries <- lapply(1:nrow_iNatProj, function(n){
   site_boundary <- ReLTER::get_site_boundaries(
     deimsid = LTER_Italy_Sites_DEIMS_iNat$link[n]
   )
-}) |> dplyr::bind_rows()
+}) |>
+  dplyr::bind_rows() |>
+  dplyr::mutate(
+    DEIMS_ID = uri
+  )
 
 # download observations from all LTER-Italy iNat projects ----
 iNatObsLTERSite <- lapply(1:nrow_iNatProj, function(i){
@@ -34,6 +38,7 @@ iNatObsLTERSite <- lapply(1:nrow_iNatProj, function(i){
       info_slug_proj = iNat_project_info$slug,
       info_taxa_num_proj = iNat_project_info$taxa_count,
       info_place_uuid_proj = iNat_project_info$raw$rule_place$uuid,
-      LTER_site_type = LTER_Italy_Sites_DEIMS_iNat$Category[i]
+      LTER_site_type = LTER_Italy_Sites_DEIMS_iNat$Category[i],
+      DEIMS_ID = LTER_Italy_Sites_DEIMS_iNat$link[i]
     )
 }) |> dplyr::bind_rows()
