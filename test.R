@@ -3,9 +3,17 @@ LTER_Italy_Sites_DEIMS_iNat <- readxl::read_excel("LTER_Italy_Sites_DEIMS_iNat.x
   dplyr::filter(
     !is.na(iNat_obs) & iNat_obs >= 100
   )
+nrow_iNatProj <- nrow(LTER_Italy_Sites_DEIMS_iNat)
+
+# download boundaries for LTER-Italy site where are the iNaturalist observations ----
+LTERsite_boundaries <- lapply(1:2, function(n){
+  site_boundary <- ReLTER::get_site_boundaries(
+    deimsid = LTER_Italy_Sites_DEIMS_iNat$link[n]
+  )
+}) |> dplyr::bind_rows()
 
 # download observations from all LTER-Italy iNat projects ----
-iNatObsLTERSite <- lapply(1:nrow(LTER_Italy_Sites_DEIMS_iNat), function(i){
+iNatObsLTERSite <- lapply(1:nrow_iNatProj, function(i){
   proj_alias <- stringr::str_replace(
     LTER_Italy_Sites_DEIMS_iNat$iNaturalist_link[i],
     'https://www.inaturalist.org/projects/(.*?)',
